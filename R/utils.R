@@ -15,6 +15,26 @@ NULL
 
 
 
+# from mfuzz
+standardise <- function(eset){
+  data <- Biobase::exprs(eset)
+  for (i in 1:dim(data)[[1]]){
+    data[i,] <- (data[i,] - base::mean(data[i,],na.rm=TRUE))/stats::sd(data[i,],na.rm=TRUE)
+  }
+  Biobase::exprs(eset) <- data
+  eset
+}
+
+
+# from mfuzz
+mestimate<- function(eset){
+  N <-  dim(Biobase::exprs(eset))[[1]]
+  D <- dim(Biobase::exprs(eset))[[2]]
+  m.sj <- 1 + (1418/N + 22.05)*D^(-2) + (12.33/N +0.243)*D^(-0.0406*log(N) - 0.1134)
+  return(m.sj)
+}
+
+
 # Test whether a matrix is one of our supported sparse matrices
 # author https://github.com/cole-trapnell-lab/monocle3
 is_sparse_matrix <- function(x){
@@ -32,9 +52,46 @@ is_sparse_matrix <- function(x){
 size_factors <- function( cds ) {
   stopifnot( methods::is( cds, "cell_data_set" ) )
   sf <- SingleCellExperiment::colData(cds)$Size_Factor
-  names( sf ) <- colnames( SingleCellExperiment::counts(cds) )
+  names( sf ) <- colnames(SingleCellExperiment::counts(cds) )
   sf
 }
+
+
+
+
+#' The cell_data_set class from https://github.com/cole-trapnell-lab/monocle3/blob/master/R/cell_data_set.R
+#'
+#' The main class used by Monocle3 to hold single-cell expression data.
+#' cell_data_set extends the Bioconductor SingleCellExperiment class.
+#'
+#' This class is initialized from a matrix of expression values along with cell
+#' and feature metadata.
+#'
+#' @field reduce_dim_aux SimpleList, auxiliary information from reduced
+#'   dimension.
+#' @field principal_graph_aux SimpleList, auxiliary information from principal
+#'   graph construction
+#' @field principal_graph SimpleList of igraph objects containing principal
+#'   graphs for different dimensionality reduction.
+#' @field clusters SimpleList of cluster information for different
+#'   dimensionality reduction.
+#' @name cell_data_set
+#' @rdname cell_data_set
+#' @aliases cell_data_set-class
+#' @exportClass cell_data_set
+#' @importFrom Biobase package.version
+#' @importFrom SingleCellExperiment SingleCellExperiment colData rowData
+#' @importFrom SingleCellExperiment reducedDim<- reducedDim reducedDims<-
+#' @importFrom SingleCellExperiment reducedDims
+#' @importFrom SummarizedExperiment Assays colData<- rowData<- assays assays<-
+setClass("cell_data_set",
+         contains = c("SingleCellExperiment"),
+         slots = c(reduce_dim_aux = "SimpleList",
+                   principal_graph_aux="SimpleList",
+                   principal_graph = "SimpleList",
+                   clusters = "SimpleList")
+)
+
 
 #' Generic to extract pseudotime from CDS object
 #'

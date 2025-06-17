@@ -51,7 +51,6 @@ globalVariables(c('.', 'cluster', 'cluster2', 'cluster_name','modulecol',"cl.x",
 #'
 #' @importFrom utils modifyList
 #' @importFrom stats kmeans
-#' @importFrom Biobase exprs
 #'
 #' @export
 #'
@@ -79,11 +78,11 @@ clusterData <- function(obj = NULL,
   cls <- class(obj)
   # pkg <- attr(cls,"package")
 
-  if(cls == "cell_data_set"){
+  if("cell_data_set" %in% cls){
     extra_params <- list(cds_obj = obj,assays = "counts",...)
 
     exp <- do.call(pre_pseudotime_matrix,extra_params)
-  }else if(cls %in% c("matrix","data.frame")){
+  }else if("matrix" %in% cls | "data.frame" %in% cls){
     exp <- obj
   }
 
@@ -104,13 +103,13 @@ clusterData <- function(obj = NULL,
 
       # whether zsocre data
       if(scaleData == TRUE){
-        myset <- Mfuzz::standardise(myset)
+        myset <- standardise(myset)
       }else{
         myset <- myset
       }
 
       cluster_number <- cluster.num
-      m <- Mfuzz::mestimate(myset)
+      m <- mestimate(myset)
 
       # cluster step
       set.seed(seed)
@@ -153,6 +152,8 @@ clusterData <- function(obj = NULL,
       # ==========================================================================
       # TCseq
       # ==========================================================================
+      exp <- filter.std(exp,min.std = min.std,visu = FALSE)
+
       # tca <- TCseq::timeclust(x = as.matrix(exp), algo = "cm",
       #                         k = cluster.num, standardize = scaleData)
 
