@@ -81,6 +81,10 @@ plot_pseudotime_heatmap2 <- function(cds_subset,
                                      trend_formula = '~sm.ns(Pseudotime, df=3)',
                                      return_heatmap = FALSE,
                                      cores = 1){
+  if (!requireNamespace("Biobase", quietly = TRUE)) {
+    stop("Package 'Biobase' is required. Please install it.")
+  }
+
   num_clusters <- min(num_clusters, nrow(cds_subset))
   pseudocount <- 1
   newdata <- data.frame(Pseudotime = seq(min(Biobase::pData(cds_subset)$Pseudotime), max(Biobase::pData(cds_subset)$Pseudotime),length.out = 100))
@@ -348,6 +352,10 @@ plot_genes_branched_heatmap2 <- function(cds_subset = NULL,
                                          trend_formula = '~sm.ns(Pseudotime, df=3) * Branch',
                                          return_heatmap = FALSE,
                                          cores = 1, ...) {
+  if (!requireNamespace("Biobase", quietly = TRUE)) {
+    stop("Package 'Biobase' is required. Please install it.")
+  }
+
   if (requireNamespace("monocle", quietly = TRUE)) {
     cds <- NA
     new_cds <- monocle::buildBranchCellDataSet(cds_subset,
@@ -646,6 +654,10 @@ plot_multiple_branches_heatmap2 <- function(cds = NULL,
     stop('This function only allows to make multiple branch plots where branches is included in the pData')
   }
 
+  if (!requireNamespace("Biobase", quietly = TRUE)) {
+    stop("Package 'Biobase' is required. Please install it.")
+  }
+
   branch_label <- branches
   if(!is.null(branches_name)){
     if(length(branches) != length(branches_name)){
@@ -889,7 +901,6 @@ plot_multiple_branches_heatmap2 <- function(cds = NULL,
 #' @param assays Type of assay to be used for the analysis, either "counts" or "normalized"
 #' @param gene_list A vector of gene names
 #' @return A smoothed pseudotime matrix for the given gene list
-#' @importFrom SummarizedExperiment rowData
 #' @export
 pre_pseudotime_matrix <- function(cds_obj = NULL,
                                   assays = c("counts","normalized"),
@@ -908,6 +919,10 @@ pre_pseudotime_matrix <- function(cds_obj = NULL,
   # } else {
   #   warning("Cannot create monocle3 'monocle3' is not installed.")
   # }
+
+  if (!requireNamespace("SummarizedExperiment", quietly = TRUE)) {
+    stop("Package 'SummarizedExperiment' is required. Please install it.")
+  }
 
   if(assays == "counts"){
     pt.matrix <- exprs(cds_obj)[match(gene_list,rownames(SummarizedExperiment::rowData(cds_obj))),

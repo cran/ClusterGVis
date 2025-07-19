@@ -72,7 +72,9 @@ clusterData <- function(obj = NULL,
                         cluster.num = NULL,
                         subcluster = NULL,
                         seed = 5201314,...){
-  ComplexHeatmap::ht_opt(message = FALSE)
+  if (!requireNamespace("Biobase", quietly = TRUE)) {
+    stop("Package 'Biobase' is required. Please install it.")
+  }
 
   # check datatype
   cls <- class(obj)
@@ -152,6 +154,10 @@ clusterData <- function(obj = NULL,
       # ==========================================================================
       # TCseq
       # ==========================================================================
+      if (!requireNamespace("TCseq", quietly = TRUE)) {
+        stop("Package 'TCseq' is required. Please install it.")
+      }
+
       exp <- filter.std(exp,min.std = min.std,visu = FALSE)
 
       # tca <- TCseq::timeclust(x = as.matrix(exp), algo = "cm",
